@@ -77,8 +77,36 @@ STATIC mp_obj_t match_group(mp_obj_t self_in, mp_obj_t no_in) {
 }
 MP_DEFINE_CONST_FUN_OBJ_2(match_group_obj, match_group);
 
+STATIC mp_obj_t match_span(size_t n_args, const mp_obj_t *args) {
+    (void)n_args;
+    mp_int_t no;
+    mp_obj_match_t *self = MP_OBJ_TO_PTR(args[0]);
+    if (n_args == 1) {
+        no = 0;
+    } else {
+        no = mp_obj_get_int(args[1]);
+    }
+    if (no < 0 || no >= self->num_matches) {
+        nlr_raise(mp_obj_new_exception_arg1(&mp_type_IndexError, args[1]));
+    }
+
+    const char *start = self->caps[no * 2];
+    if (start == NULL) {
+        // no match for this group
+        return mp_const_none;
+    }
+    mp_uint_t len;
+    start = mp_obj_str_get_data(self->str, &len);
+    mp_obj_tuple_t *t = MP_OBJ_TO_PTR(mp_obj_new_tuple(2, NULL));
+    t->items[0] = MP_OBJ_NEW_SMALL_INT(self->caps[no * 2] - start);
+    t->items[1] = MP_OBJ_NEW_SMALL_INT(self->caps[no * 2 + 1] - start);
+    return MP_OBJ_FROM_PTR(t);
+}
+MP_DEFINE_CONST_FUN_OBJ_VAR_BETWEEN(match_span_obj, 1, 2, match_span);
+
 STATIC const mp_rom_map_elem_t match_locals_dict_table[] = {
     { MP_ROM_QSTR(MP_QSTR_group), MP_ROM_PTR(&match_group_obj) },
+    { MP_ROM_QSTR(MP_QSTR_span), MP_ROM_PTR(&match_span_obj) },
 };
 
 STATIC MP_DEFINE_CONST_DICT(match_locals_dict, match_locals_dict_table);
