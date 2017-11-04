@@ -1121,6 +1121,10 @@ typedef double mp_float_t;
 #define MICROPY_PY_FRAMEBUF (0)
 #endif
 
+#ifndef MICROPY_PY_ESP_HALL_SENSOR
+#define MICROPY_PY_ESP_HALL_SENSOR (0)
+#endif
+
 #ifndef MICROPY_PY_BTREE
 #define MICROPY_PY_BTREE (0)
 #endif

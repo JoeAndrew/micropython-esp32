@@ -36,6 +36,7 @@
 #include "py/mperrno.h"
 #include "py/mphal.h"
 #include "drivers/dht/dht.h"
+#include "driver/adc.h"
 #include "modesp.h"
 
 STATIC mp_obj_t esp_flash_read(mp_obj_t offset_in, mp_obj_t buf_in) {
@@ -104,6 +105,13 @@ STATIC mp_obj_t esp_neopixel_write_(mp_obj_t pin, mp_obj_t buf, mp_obj_t timing)
 }
 STATIC MP_DEFINE_CONST_FUN_OBJ_3(esp_neopixel_write_obj, esp_neopixel_write_);
 
+#if MICROPY_PY_ESP_HALL_SENSOR
+STATIC mp_obj_t esp_hall_sensor(void) {
+    adc1_config_width(ADC_WIDTH_12Bit);
+    return MP_OBJ_NEW_SMALL_INT(hall_sensor_read());
+}
+STATIC MP_DEFINE_CONST_FUN_OBJ_0(esp_hall_sensor_obj, esp_hall_sensor);
+#endif
 STATIC const mp_rom_map_elem_t esp_module_globals_table[] = {
     { MP_ROM_QSTR(MP_QSTR___name__), MP_ROM_QSTR(MP_QSTR_esp) },
 
@@ -118,6 +126,9 @@ STATIC const mp_rom_map_elem_t esp_module_globals_table[] = {
 
     { MP_ROM_QSTR(MP_QSTR_neopixel_write), MP_ROM_PTR(&esp_neopixel_write_obj) },
     { MP_ROM_QSTR(MP_QSTR_dht_readinto), MP_ROM_PTR(&dht_readinto_obj) },
+#if MICROPY_PY_ESP_HALL_SENSOR
+    { MP_ROM_QSTR(MP_QSTR_hall_sensor), MP_ROM_PTR(&esp_hall_sensor_obj) },
+#endif
 };
 
 STATIC MP_DEFINE_CONST_DICT(esp_module_globals, esp_module_globals_table);
